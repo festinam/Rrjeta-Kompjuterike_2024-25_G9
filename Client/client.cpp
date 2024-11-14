@@ -63,3 +63,42 @@ void authenticate(SOCKET clientSocket) {
         throw runtime_error("Authentication failed");
     }
 }
+
+
+void handleCommands(SOCKET clientSocket) {
+    char buffer[1024];
+
+    while (true) {
+        cout << "Enter a command ('read <file_path>', 'write <string> <file_path>', 'execute <command>', 'list <directory_path>', or type 'exit' to end): ";
+        cin.getline(buffer, sizeof(buffer));
+
+        if (strcmp(buffer, "exit") == 0) {
+            const char* exitMessage = "Client disconnected.";
+            send(clientSocket, exitMessage, strlen(exitMessage), 0);
+            break;
+        }
+
+        // Send the command to the server
+        send(clientSocket, buffer, strlen(buffer), 0);
+
+        // Receive response from the server
+        memset(buffer, 0, sizeof(buffer));
+        int bytesRead = recv(clientSocket, buffer, sizeof(buffer), 0);
+
+        if (bytesRead > 0) {
+            buffer[bytesRead] = '\0'; // Null-terminate the buffer
+            cout << "Server Response: " << buffer << endl;
+
+            // Check if the server has reached the client limit
+            if (strcmp(buffer, "Limit of clients reached!") == 0) {
+                cout << "Disconnecting the client..." << endl;
+                break;
+            }
+        }
+        else {
+            cout << "Connection to server lost." << endl;
+            break;
+        }
+    }
+}
+

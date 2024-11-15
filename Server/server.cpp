@@ -82,3 +82,22 @@ string executeCommand(const string& command) {
     _pclose(pipe);
     return result.empty() ? "Command executed successfully!" : result;
 }
+void handleClient(int clientSocket, sockaddr_in clientAddress) {
+    char buffer[1024];
+    int bytesRead;
+    
+    char clientIP[INET_ADDRSTRLEN];
+    inet_ntop(AF_INET, &(clientAddress.sin_addr), clientIP, INET_ADDRSTRLEN);
+
+    memset(buffer, 0, sizeof(buffer)); 
+    bytesRead = recv(clientSocket, buffer, sizeof(buffer) - 1, 0); 
+    if (bytesRead <= 0) return;
+    buffer[bytesRead] = '\0'; 
+    string username(buffer);
+
+    memset(buffer, 0, sizeof(buffer));  
+    bytesRead = recv(clientSocket, buffer, sizeof(buffer) - 1, 0);  
+    if (bytesRead <= 0) return;
+    buffer[bytesRead] = '\0';  
+    string password(buffer);
+    }

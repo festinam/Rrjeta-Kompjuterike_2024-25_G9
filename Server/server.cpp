@@ -197,5 +197,56 @@ cout << (readOnly ? "User" : "Admin") << " client disconnected!" << endl;
 closesocket(clientSocket);
 clientcount--;
     }
+
+
+    int main() {
+        WSADATA wsaData;
+        if (!initializeWinsock(wsaData)) {
+            return -1;
+        }
+
+        SOCKET serverSocket = createServerSocket();
+        if (serverSocket == -1) {
+            WSACleanup();
+            return -1;
+        }
+
+        sockaddr_in serverAddress;
+        serverAddress.sin_family = AF_INET;
+        serverAddress.sin_addr.s_addr = inet_addr(IP_ADDRESS);
+        serverAddress.sin_port = htons(PORT);
+
+        if (!bindServerSocket(serverSocket, serverAddress)) {
+            closesocket(serverSocket);
+            WSACleanup();
+            return -1;
+        }
+
+        if (!startListening(serverSocket)) {
+            closesocket(serverSocket);
+            WSACleanup();
+            return -1;
+        }
+
+        cout << "Server is listening on port " << PORT << "..." << endl;
+
+        while (true) {
+            sockaddr_in clientAddress;
+            int clientAddressLength = sizeof(clientAddress);
+
+            int clientSocket = accept(serverSocket, (struct sockaddr*)&clientAddress, &clientAddressLength);
+            if (clientSocket == -1) {
+                cerr << "Error accepting client connection." << endl;
+                continue;
+            }
+
+            thread clientThread(handleClient, clientSocket, clientAddress);
+            clientThread.detach();
+        }
+
+        closesocket(serverSocket);
+        WSACleanup();
+        return 0;
+    }
     
    

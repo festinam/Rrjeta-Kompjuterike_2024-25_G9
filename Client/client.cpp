@@ -102,3 +102,39 @@ void handleCommands(SOCKET clientSocket) {
     }
 }
 
+int main() {
+    WSADATA wsaData;
+
+    if (!initializeWinsock(wsaData)) {
+        return -1;
+    }
+
+    SOCKET clientSocket = createClientSocket();
+    if (clientSocket == -1) {
+        cleanup(clientSocket);
+        return -1;
+    }
+
+    sockaddr_in serverAddress;
+    serverAddress.sin_family = AF_INET;
+    serverAddress.sin_addr.s_addr = inet_addr(IP_ADDRESS);
+    serverAddress.sin_port = htons(PORT);
+
+    if (!connectToServer(clientSocket, serverAddress)) {
+        cleanup(clientSocket);
+        return -1;
+    }
+
+    cout << "Connected to the server." << endl;
+
+    try {
+        authenticate(clientSocket);
+        handleCommands(clientSocket);
+    }
+    catch (const runtime_error& e) {
+        cerr << e.what() << endl;
+    }
+
+    cleanup(clientSocket);
+    return 0;
+}

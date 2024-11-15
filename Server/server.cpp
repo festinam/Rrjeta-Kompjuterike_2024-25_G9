@@ -43,3 +43,42 @@ bool bindServerSocket(SOCKET serverSocket, sockaddr_in& serverAddress) {
 	}
 	return true;
 }
+
+bool startListening(SOCKET serverSocket) {
+    if (listen(serverSocket, 5) == -1) {
+        cerr << "Error listening on server socket." << endl;
+        return false;
+    }
+    return true;
+}
+
+bool authenticate(const char* username, const char* password, bool& readOnly) {
+    if (strcmp(username, "Administrator") == 0 && strcmp(password, "A123") == 0) {
+        readOnly = false;
+        return true;
+    }
+    else if (strcmp(username, "User") == 0 && strcmp(password, "U123") == 0) {
+        readOnly = true;
+        return true;
+    }
+    return false;
+}
+
+string executeCommand(const string& command) {
+    string result;
+    FILE* pipe = _popen(command.c_str(), "r");
+
+    if (!pipe) {
+        return "Error executing command.";
+    }
+
+    char buffer[128];
+    while (!feof(pipe)) {
+        if (fgets(buffer, 128, pipe) != nullptr) {
+            result += buffer;
+        }
+    }
+
+    _pclose(pipe);
+    return result.empty() ? "Command executed successfully!" : result;
+}

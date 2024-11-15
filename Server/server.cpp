@@ -114,8 +114,88 @@ void handleClient(int clientSocket, sockaddr_in clientAddress) {
     clientcount--;
     return;
     }
-    
+
     string privilege = readOnly ? "User" : "Admin";
     cout << privilege << " client connected with IP: " << clientIP << endl;
+        while (true) {
+        memset(buffer, 0, sizeof(buffer));
+        bytesRead = recv(clientSocket, buffer, sizeof(buffer) - 1, 0);
+        if (bytesRead <= 0) break;
+
+        buffer[bytesRead] = '\0';  
+        string command(buffer);
+        istringstream iss(command);
+        string action, content, fileName;
+        iss >> action;
+
+        if (action == "list" && !readOnly) {
+            iss >> fileName;
+            string result;
+
+            try {
+                for (const auto& entry : fs::directory_iterator(fileName)) {
+                    result += entry.path().string() + "\n";
+                }
+                if (result.empty()) {
+                    result = "Directory is empty.";
+                }
+            }
+            catch (const fs::filesystem_error& e) {
+                result = "Error: Unable to access directory.";
+            }
+
+            send(clientSocket, result.c_str(), result.length(), 0);
+        }
+        else if (action == "read") {
+            iss >> fileName;
+
+            ifstream file(fileName, ios::binary);
+            if (file) {
+                string fileContent((istreambuf_iterator<char>(file)), istreambuf_iterator<char>());
+                file.close();
+
+                send(clientSocket, fileContent.c_str(), fileContent.length(), 0);
+            }
+            else {
+                const char* errorMessage = "Error: File not found.";
+                send(clientSocket, errorMessage, strlen(errorMessage), 0);
+            }
+        }
+        else if (action == "write" && !readOnly) {
+            iss >> content >> fileName;
+
+            ofstream file(fileName, ios::binary);
+            if (file) {
+                file << content;
+                file.close();
+
+                const char* successMessage = "File was written successfully.";
+                send(clientSocket, successMessage, strlen(successMessage), 0);
+            }
+            else {
+                const char* errorMessage = "Error: Unable to write to file.";
+                send(clientSocket, errorMessage, strlen(errorMessage), 0);
+            }
+        }
+        else if (action == "execute" && !readOnly) {
+            getline(iss, content);
+            string result = executeCommand(content);
+            send(clientSocket, result.c_str(), result.length(), 0);
+        }
+        else {
+            const char* errorMessage = "Error: Unauthorized or unsupported command.";
+            send(clientSocket, errorMessage, strlen(errorMessage), 0);
+        }
     }
+}
+else {
+    const char* authFailureMessage = "Authentication failed. Access denied.";
+    send(clientSocket, authFailureMessage, strlen(authFailureMessage), 0);
+}
+
+cout << (readOnly ? "User" : "Admin") << " client disconnected!" << endl;
+closesocket(clientSocket);
+clientcount--;
     }
+    
+   

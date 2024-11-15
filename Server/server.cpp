@@ -100,4 +100,22 @@ void handleClient(int clientSocket, sockaddr_in clientAddress) {
     if (bytesRead <= 0) return;
     buffer[bytesRead] = '\0';  
     string password(buffer);
+
+    bool readOnly;
+    if (authenticate(username.c_str(), password.c_str(), readOnly)) {
+        const char* authSuccessMessage = "Authentication successful. Access granted.";
+        send(clientSocket, authSuccessMessage, strlen(authSuccessMessage), 0);
+        clientcount++;
+
+    if (clientcount > 4) {
+    const char* noSpaceMessage = "Limit of clients reached!";
+    send(clientSocket, noSpaceMessage, strlen(noSpaceMessage), 0);
+    closesocket(clientSocket);
+    clientcount--;
+    return;
+    }
+    
+    string privilege = readOnly ? "User" : "Admin";
+    cout << privilege << " client connected with IP: " << clientIP << endl;
+    }
     }

@@ -91,6 +91,14 @@ void handleCommands(SOCKET clientSocket, bool isReadOnly) {
             break;
         }
 
+        // Check command for read-only users
+        if (isReadOnly) {
+            if (strncmp(buffer, "read", 4) != 0) {
+                cout << "Error: Unauthorized command." << endl;
+                continue;
+            }
+        }
+
         // Send the command to the server
         send(clientSocket, buffer, strlen(buffer), 0);
 
@@ -101,12 +109,6 @@ void handleCommands(SOCKET clientSocket, bool isReadOnly) {
         if (bytesRead > 0) {
             buffer[bytesRead] = '\0'; // Null-terminate the buffer
             cout << "Server Response: " << buffer << endl;
-
-            // Check if the server has reached the client limit
-            if (strcmp(buffer, "Limit of clients reached!") == 0) {
-                cout << "Disconnecting the client..." << endl;
-                break;
-            }
         }
         else {
             cout << "Connection to server lost." << endl;
@@ -140,12 +142,9 @@ int main() {
 
     cout << "Connected to the server." << endl;
 
-    try {
-        authenticate(clientSocket);
-        handleCommands(clientSocket);
-    }
-    catch (const runtime_error& e) {
-        cerr << e.what() << endl;
+    bool isReadOnly;
+    if (authenticate(clientSocket, isReadOnly)) {
+        handleCommands(clientSocket, isReadOnly);
     }
 
     cleanup(clientSocket);

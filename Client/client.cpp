@@ -40,7 +40,7 @@ bool connectToServer(SOCKET clientSocket, sockaddr_in& serverAddress) {
     return true;
 }
 
-void authenticate(SOCKET clientSocket) {
+bool authenticate(SOCKET clientSocket, bool& isReadOnly) {
     char buffer[1024];
 
     // Prompt for username

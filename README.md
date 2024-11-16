@@ -1,7 +1,6 @@
 # Server-Client File Management System
 
 This project implements a server-client architecture for file management, where clients can interact with a server to perform file operations based on their access privileges. It is built using **socket programming** with **TCP** for communication.
-
 ## Overview
 
 - **Server**: Listens for client connections, handles authentication, and enforces user privileges. Admin users can perform read, write, and execute commands on files, while read-only users can only read files.
@@ -28,3 +27,18 @@ This project implements a server-client architecture for file management, where 
 - The `<filesystem>` library (C++17+)
 - A Windows-based environment for running the application
 - **TCP socket programming** for client-server communication
+
+## Code execution
+#### Admin
+![Admin-server](https://github.com/user-attachments/assets/32095c4b-6605-4f41-a4a9-927569338a32)
+
+![Admin1](https://github.com/user-attachments/assets/e2342005-6521-4a9c-ba46-895c58e13221)
+
+#### User
+![User-server](https://github.com/user-attachments/assets/309d1fb7-6560-435d-bf6f-e55ec9784d5d)
+
+![User1](https://github.com/user-attachments/assets/797de278-2f7a-4566-8fcd-2421ac75517e)
+
+
+
+

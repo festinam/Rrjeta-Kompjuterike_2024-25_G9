@@ -58,20 +58,33 @@ void authenticate(SOCKET clientSocket) {
     int bytesRead = recv(clientSocket, buffer, sizeof(buffer), 0);
     cout << "Server response: " << buffer << endl;
 
-    if (strcmp(buffer, "Authentication successful. Access granted.") != 0) {
-        cerr << "Authentication failed!" << endl;
-        throw runtime_error("Authentication failed");
+     
+    if (strstr(buffer, "Privilege: User")) {
+        isReadOnly = true;
+        return true;
     }
+    else if (strstr(buffer, "Privilege: Admin")) {
+        isReadOnly = false;
+        return true;
+    }
+
+    cerr << "Authentication failed!" << endl;
+    return false;
 }
 
 
-void handleCommands(SOCKET clientSocket) {
+void handleCommands(SOCKET clientSocket, bool isReadOnly) {
     char buffer[1024];
 
     while (true) {
-        cout << "Enter a command ('read <file_path>', 'write <string> <file_path>', 'execute <command>', 'list <directory_path>', or type 'exit' to end): ";
-        cin.getline(buffer, sizeof(buffer));
-
+        if (isReadOnly) {
+          cout << "Enter a command ('read <file_path>' or type 'exit' to end): ";
+        }
+        else {
+          cout << "Enter a command ('read <file_path>', 'write <string> <file_path>', 'execute <command>', 'list <directory_path>', or type 'exit' to end): ";
+        }
+    cin.getline(buffer, sizeof(buffer));
+    
         if (strcmp(buffer, "exit") == 0) {
             const char* exitMessage = "Client disconnected.";
             send(clientSocket, exitMessage, strlen(exitMessage), 0);

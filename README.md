@@ -38,7 +38,12 @@ This project implements a server-client architecture for file management, where 
 ![User-server](https://github.com/user-attachments/assets/309d1fb7-6560-435d-bf6f-e55ec9784d5d)
 
 ![User1](https://github.com/user-attachments/assets/797de278-2f7a-4566-8fcd-2421ac75517e)
-
+# 
+This project was completed by students from the Faculty of Electrical and Computer Engineering at the University of "Hasan Prishtina", under the expert guidance of Prof. Dr. Blerim Rexha and Ass. Mërgim Hoti, as part of our coursework in Computer Networks.
+### Authors 
+- [Ardit Haklaj](https://github.com/ArditHaklaj)
+- [Besarta Mustafa](https://github.com/BesartaMustafa1)
+- [Festina Mjeku](https://github.com/festinam)
 
 
 
